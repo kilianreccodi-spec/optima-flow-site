@@ -18,7 +18,8 @@
     --accent: #e0b060;
   }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  * { margin: 0; padding: 0; box-sizing: border-box; cursor: auto; }
+  a, button { cursor: pointer; }
 
   html { scroll-behavior: smooth; }
 
@@ -27,7 +28,6 @@
     background: var(--white);
     color: var(--navy);
     overflow-x: hidden;
-    cursor: none;
   }
 
 
@@ -688,10 +688,6 @@
 </footer>
 
 <script>
-  document.querySelectorAll('a, button').forEach(el => {
-    el.addEventListener('mouseenter', () => { cursor.classList.add('hovering'); ring.classList.add('hovering'); });
-    el.addEventListener('mouseleave', () => { cursor.classList.remove('hovering'); ring.classList.remove('hovering'); });
-  });
 
   // Scroll reveal
   const reveals = document.querySelectorAll('.reveal');
