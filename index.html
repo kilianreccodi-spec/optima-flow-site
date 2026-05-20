@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Optima Flow — Automatise. Performe.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --navy: #1a2f4e;
+    --navy-deep: #0f1e33;
+    --navy-light: #2a4a70;
+    --white: #ffffff;
+    --off-white: #f7f7f5;
+    --grey: #8a9ab0;
+    --grey-light: #e8edf3;
+    --accent: #e0b060;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--white);
+    color: var(--navy);
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    position: fixed;
+    width: 10px; height: 10px;
+    background: var(--navy);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s, width 0.3s, height 0.3s, background 0.3s;
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 36px; height: 36px;
+    border: 1px solid var(--navy);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.15s ease, width 0.3s, height 0.3s, opacity 0.3s;
+    opacity: 0.4;
+  }
+  .cursor.hovering { width: 16px; height: 16px; background: var(--accent); }
+  .cursor-ring.hovering { width: 56px; height: 56px; opacity: 0.2; }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 60px;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(26,47,78,0.08);
+    transition: padding 0.3s;
+  }
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--navy);
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .nav-logo img { height: 28px; }
+  .nav-links { display: flex; align-items: center; gap: 36px; }
+  .nav-links a {
+    font-size: 13px; font-weight: 400;
+    color: var(--navy); opacity: 0.6;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    transition: opacity 0.2s;
+  }
+  .nav-links a:hover { opacity: 1; }
+  .nav-cta {
+    background: var(--navy) !important;
+    color: var(--white) !important;
+    opacity: 1 !important;
+    padding: 10px 22px;
+    border-radius: 100px;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    transition: background 0.2s, transform 0.2s !important;
+  }
+  .nav-cta:hover { background: var(--navy-light) !important; transform: translateY(-1px); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 120px 40px 80px;
+    position: relative;
+    overflow: hidden;
+    background: var(--white);
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(26,47,78,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--off-white);
+    border: 1px solid var(--grey-light);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 12px;
+    color: var(--navy);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 500;
+    margin-bottom: 36px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.2s forwards;
+  }
+  .hero-tag span { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(48px, 8vw, 96px);
+    font-weight: 800;
+    line-height: 1.0;
+    color: var(--navy);
+    letter-spacing: -0.03em;
+    margin-bottom: 28px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.4s forwards;
+  }
+  .hero h1 em {
+    font-style: normal;
+    color: transparent;
+    -webkit-text-stroke: 2px var(--navy);
+  }
+  .hero-sub {
+    font-size: clamp(15px, 2vw, 18px);
+    color: var(--grey);
+    font-weight: 300;
+    line-height: 1.7;
+    max-width: 520px;
+    margin: 0 auto 48px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.6s forwards;
+  }
+  .hero-actions {
+    display: flex; align-items: center; gap: 16px;
+    flex-wrap: wrap; justify-content: center;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.8s forwards;
+  }
+  .btn-primary {
+    background: var(--navy);
+    color: var(--white);
+    padding: 16px 36px;
+    border-radius: 100px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 20px rgba(26,47,78,0.2);
+  }
+  .btn-primary:hover { background: var(--navy-light); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(26,47,78,0.3); }
+  .btn-secondary {
+    color: var(--navy);
+    font-size: 14px;
+    font-weight: 400;
+    text-decoration: none;
+    display: flex; align-items: center; gap: 8px;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+  }
+  .btn-secondary:hover { opacity: 1; }
+  .btn-secondary::after { content: '→'; transition: transform 0.2s; }
+  .btn-secondary:hover::after { transform: translateX(4px); }
+
+  .hero-stats {
+    display: flex; align-items: center; gap: 48px;
+    margin-top: 72px;
+    padding-top: 48px;
+    border-top: 1px solid var(--grey-light);
+    opacity: 0;
+    animation: fadeUp 0.8s 1.0s forwards;
+  }
+  .hero-stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--navy);
+  }
+  .hero-stat-label {
+    font-size: 12px;
+    color: var(--grey);
+    letter-spacing: 0.05em;
+    margin-top: 4px;
+  }
+  .stat-divider { width: 1px; height: 40px; background: var(--grey-light); }
+
+  /* SECTION BASE */
+  section { padding: 120px 60px; }
+  .section-label {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--grey);
+    font-weight: 500;
+    margin-bottom: 20px;
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(32px, 5vw, 56px);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--navy);
+    margin-bottom: 20px;
+  }
+  .section-sub {
+    font-size: 16px;
+    color: var(--grey);
+    line-height: 1.7;
+    font-weight: 300;
+    max-width: 480px;
+  }
+
+  /* PROBLEM */
+  .problem { background: var(--off-white); }
+  .problem-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .problem-items { display: flex; flex-direction: column; gap: 32px; margin-top: 48px; }
+  .problem-item {
+    display: flex; align-items: flex-start; gap: 20px;
+    padding: 24px;
+    background: var(--white);
+    border-radius: 16px;
+    border: 1px solid var(--grey-light);
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .problem-item:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(26,47,78,0.08); }
+  .problem-icon {
+    width: 40px; height: 40px;
+    background: var(--navy);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--white);
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .problem-item h3 { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 600; color: var(--navy); margin-bottom: 6px; }
+  .problem-item p { font-size: 13px; color: var(--grey); line-height: 1.6; }
+  .problem-visual {
+    background: var(--navy);
+    border-radius: 24px;
+    padding: 40px;
+    color: var(--white);
+    position: relative;
+    overflow: hidden;
+  }
+  .problem-visual::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 200px; height: 200px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 50%;
+  }
+  .problem-visual-title { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; margin-bottom: 32px; }
+  .time-bar { margin-bottom: 16px; }
+  .time-bar-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; opacity: 0.7; }
+  .time-bar-track { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; }
+  .time-bar-fill { height: 100%; border-radius: 3px; background: var(--accent); }
+
+  /* AGENTS */
+  .agents { background: var(--white); }
+  .agents-header { max-width: 1200px; margin: 0 auto 60px; }
+  .agents-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .agent-card {
+    background: var(--off-white);
+    border: 1px solid var(--grey-light);
+    border-radius: 20px;
+    padding: 32px;
+    transition: transform 0.3s, box-shadow 0.3s, background 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .agent-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--navy);
+    opacity: 0;
+    transition: opacity 0.3s;
+    border-radius: 20px;
+  }
+  .agent-card:hover::before { opacity: 1; }
+  .agent-card:hover { transform: translateY(-6px); box-shadow: 0 24px 48px rgba(26,47,78,0.2); }
+  .agent-card:hover .agent-name,
+  .agent-card:hover .agent-role,
+  .agent-card:hover .agent-desc { color: var(--white); }
+  .agent-card:hover .agent-dept { color: rgba(255,255,255,0.5); }
+  .agent-card:hover .agent-initial { background: rgba(255,255,255,0.1); color: var(--white); }
+  .agent-card > * { position: relative; z-index: 1; }
+  .agent-initial {
+    width: 44px; height: 44px;
+    background: var(--white);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 20px;
+    transition: background 0.3s, color 0.3s;
+  }
+  .agent-name { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: var(--navy); transition: color 0.3s; }
+  .agent-role { font-size: 12px; color: var(--grey); letter-spacing: 0.05em; text-transform: uppercase; margin-top: 2px; margin-bottom: 16px; transition: color 0.3s; }
+  .agent-dept { font-size: 11px; color: var(--grey); margin-bottom: 12px; transition: color 0.3s; }
+  .agent-desc { font-size: 13px; color: var(--grey); line-height: 1.6; transition: color 0.3s; }
+
+  /* OFFRE */
+  .offre { background: var(--off-white); }
+  .offre-header { max-width: 1200px; margin: 0 auto 60px; }
+  .offre-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto 40px;
+  }
+  .offre-card {
+    background: var(--white);
+    border: 1px solid var(--grey-light);
+    border-radius: 24px;
+    padding: 40px;
+    transition: transform 0.3s, box-shadow 0.3s;
+    position: relative;
+  }
+  .offre-card.featured {
+    background: var(--navy);
+    border-color: var(--navy);
+  }
+  .offre-card:hover { transform: translateY(-6px); box-shadow: 0 24px 48px rgba(26,47,78,0.12); }
+  .offre-num { font-size: 11px; letter-spacing: 0.1em; color: var(--grey); margin-bottom: 12px; }
+  .offre-card.featured .offre-num { color: rgba(255,255,255,0.4); }
+  .offre-name { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+  .offre-card.featured .offre-name { color: var(--white); }
+  .offre-desc { font-size: 13px; color: var(--grey); line-height: 1.6; margin-bottom: 24px; }
+  .offre-card.featured .offre-desc { color: rgba(255,255,255,0.6); }
+  .offre-price { font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; color: var(--navy); margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--grey-light); }
+  .offre-card.featured .offre-price { color: var(--white); border-color: rgba(255,255,255,0.1); }
+  .offre-features { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .offre-features li { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--navy); }
+  .offre-card.featured .offre-features li { color: rgba(255,255,255,0.8); }
+  .offre-features li::before { content: '✓'; color: var(--accent); font-weight: 700; font-size: 14px; flex-shrink: 0; }
+
+  .offre-supplements {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  .supplement-card {
+    background: var(--white);
+    border: 1px solid var(--grey-light);
+    border-radius: 14px;
+    padding: 20px;
+    transition: transform 0.2s;
+  }
+  .supplement-card:hover { transform: translateY(-3px); }
+  .supplement-name { font-size: 12px; color: var(--grey); margin-bottom: 6px; }
+  .supplement-price { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: var(--navy); }
+  .supplement-detail { font-size: 11px; color: var(--grey); margin-top: 4px; }
+
+  /* CTA */
+  .cta-section {
+    background: var(--navy);
+    text-align: center;
+    padding: 120px 60px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-section::before {
+    content: '';
+    position: absolute;
+    top: -100px; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .cta-section .section-label { color: rgba(255,255,255,0.4); }
+  .cta-section .section-title { color: var(--white); margin: 0 auto 16px; }
+  .cta-sub { font-size: 16px; color: rgba(255,255,255,0.5); margin-bottom: 48px; font-weight: 300; }
+  .btn-white {
+    background: var(--white);
+    color: var(--navy);
+    padding: 18px 44px;
+    border-radius: 100px;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    font-family: 'Syne', sans-serif;
+    letter-spacing: 0.02em;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  }
+  .btn-white:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+
+  /* FOOTER */
+  footer {
+    background: var(--navy-deep);
+    padding: 40px 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .footer-logo { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.4); letter-spacing: 0.05em; }
+  .footer-copy { font-size: 12px; color: rgba(255,255,255,0.25); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* MOBILE */
+  @media (max-width: 768px) {
+    nav { padding: 16px 20px; }
+    .nav-links { display: none; }
+    section { padding: 80px 24px; }
+    .hero { padding: 100px 24px 60px; }
+    .hero-stats { gap: 24px; flex-wrap: wrap; justify-content: center; }
+    .problem-grid { grid-template-columns: 1fr; gap: 40px; }
+    .agents-grid { grid-template-columns: 1fr; }
+    .offre-grid { grid-template-columns: 1fr; }
+    .offre-supplements { grid-template-columns: repeat(2,1fr); }
+    footer { flex-direction: column; gap: 12px; text-align: center; padding: 32px 24px; }
+    .cta-section { padding: 80px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">
+    OPTIMA FLOW
+  </a>
+  <div class="nav-links">
+    <a href="#agents">Les agents</a>
+    <a href="#offre">Offre</a>
+    <a href="#contact">Contact</a>
+    <a href="https://calendly.com/optima-flow38/30min" target="_blank" class="nav-cta">Audit gratuit</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-tag"><span></span>Agence IA · TPE & Indépendants</div>
+  <h1>Automatise.<br/><em>Performe.</em></h1>
+  <p class="hero-sub">Des agents IA qui travaillent à votre place — emails, relances, facturation, recrutement. Sans changer vos outils.</p>
+  <div class="hero-actions">
+    <a href="https://calendly.com/optima-flow38/30min" target="_blank" class="btn-primary">Réserver un audit gratuit</a>
+    <a href="#agents" class="btn-secondary">Découvrir les agents</a>
+  </div>
+  <div class="hero-stats">
+    <div>
+      <div class="hero-stat-num">6</div>
+      <div class="hero-stat-label">Agents déployés</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div>
+      <div class="hero-stat-num">145k€</div>
+      <div class="hero-stat-label">Économies estimées / an</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div>
+      <div class="hero-stat-num">30 min</div>
+      <div class="hero-stat-label">Audit offert</div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="problem" id="probleme">
+  <div class="problem-grid">
+    <div>
+      <p class="section-label reveal">Le problème</p>
+      <h2 class="section-title reveal">Vous perdez des heures sur des tâches qui ne génèrent pas de CA.</h2>
+      <p class="section-sub reveal">Chaque heure passée sur l'administratif est une heure de moins pour développer votre activité.</p>
+      <div class="problem-items">
+        <div class="problem-item reveal">
+          <div class="problem-icon">✉</div>
+          <div>
+            <h3>Emails sans fin</h3>
+            <p>3h par jour sur des réponses répétitives, des relances, des accusés de réception.</p>
+          </div>
+        </div>
+        <div class="problem-item reveal">
+          <div class="problem-icon">€</div>
+          <div>
+            <h3>Facturation manuelle</h3>
+            <p>Générer, envoyer, relancer — du CA qui part en fumée faute de suivi.</p>
+          </div>
+        </div>
+        <div class="problem-item reveal">
+          <div class="problem-icon">↻</div>
+          <div>
+            <h3>Leads oubliés</h3>
+            <p>Combien de ventes perdues parce que vous n'avez pas rappelé au bon moment ?</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="problem-visual reveal">
+      <div class="problem-visual-title">Où part votre temps ?</div>
+      <div class="time-bar">
+        <div class="time-bar-label"><span>Emails & communications</span><span>28%</span></div>
+        <div class="time-bar-track"><div class="time-bar-fill" style="width:28%"></div></div>
+      </div>
+      <div class="time-bar">
+        <div class="time-bar-label"><span>Administration & facturation</span><span>22%</span></div>
+        <div class="time-bar-track"><div class="time-bar-fill" style="width:22%"></div></div>
+      </div>
+      <div class="time-bar">
+        <div class="time-bar-label"><span>Relances commerciales</span><span>18%</span></div>
+        <div class="time-bar-track"><div class="time-bar-fill" style="width:18%"></div></div>
+      </div>
+      <div class="time-bar">
+        <div class="time-bar-label"><span>Recrutement & RH</span><span>12%</span></div>
+        <div class="time-bar-track"><div class="time-bar-fill" style="width:12%"></div></div>
+      </div>
+      <div style="margin-top:32px; padding-top:24px; border-top:1px solid rgba(255,255,255,0.1);">
+        <div style="font-size:13px; opacity:0.5; margin-bottom:8px;">Ce que vous pourriez récupérer</div>
+        <div style="font-family:'Syne',sans-serif; font-size:36px; font-weight:800; color:var(--accent);">+15h / semaine</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AGENTS -->
+<section class="agents" id="agents">
+  <div class="agents-header">
+    <p class="section-label reveal">Les agents</p>
+    <h2 class="section-title reveal">Six agents. Six problèmes résolus.</h2>
+    <p class="section-sub reveal">Chaque agent s'intègre dans vos outils existants. Aucune migration. Aucune formation lourde.</p>
+  </div>
+  <div class="agents-grid">
+    <div class="agent-card reveal">
+      <div class="agent-initial">A</div>
+      <div class="agent-name">Alex</div>
+      <div class="agent-role">Gestion email</div>
+      <div class="agent-dept">Communication · Gmail, Outlook</div>
+      <div class="agent-desc">Lit vos emails, génère des réponses professionnelles, trie par priorité. Vous arrivez le matin, 80% est traité.</div>
+    </div>
+    <div class="agent-card reveal">
+      <div class="agent-initial">T</div>
+      <div class="agent-name">Tom</div>
+      <div class="agent-role">Relance inactifs</div>
+      <div class="agent-dept">Commercial · HubSpot, Gmail</div>
+      <div class="agent-desc">Identifie chaque semaine les contacts sans interaction et envoie une relance personnalisée. Tom n'oublie jamais.</div>
+    </div>
+    <div class="agent-card reveal">
+      <div class="agent-initial">L</div>
+      <div class="agent-name">Lucas</div>
+      <div class="agent-role">Veille concurrentielle</div>
+      <div class="agent-dept">Stratégie · Google, LinkedIn, Slack</div>
+      <div class="agent-desc">Surveille vos concurrents et vous envoie un résumé hebdomadaire des changements importants.</div>
+    </div>
+    <div class="agent-card reveal">
+      <div class="agent-initial">C</div>
+      <div class="agent-name">Clara</div>
+      <div class="agent-role">Suivi client post-vente</div>
+      <div class="agent-dept">Relation client · Gmail, HubSpot, Calendly</div>
+      <div class="agent-desc">J+7 satisfaction, J+30 avis Google, J+90 offre d'upsell. Du CA supplémentaire directement mesurable.</div>
+    </div>
+    <div class="agent-card reveal">
+      <div class="agent-initial">R</div>
+      <div class="agent-name">Romain</div>
+      <div class="agent-role">Recrutement</div>
+      <div class="agent-dept">RH · Gmail, Notion</div>
+      <div class="agent-desc">Reçoit les CVs, les score selon vos critères, classe les 5 meilleurs profils. Trier 50 CVs en 10 minutes.</div>
+    </div>
+    <div class="agent-card reveal">
+      <div class="agent-initial">S</div>
+      <div class="agent-name">Sarah</div>
+      <div class="agent-role">Facturation automatique</div>
+      <div class="agent-dept">Admin · Gmail, Notion, Pennylane</div>
+      <div class="agent-desc">Génère les factures après acceptation de devis, les envoie, relance si impayé. Zéro oubli.</div>
+    </div>
+  </div>
+</section>
+
+<!-- OFFRE -->
+<section class="offre" id="offre">
+  <div class="offre-header">
+    <p class="section-label reveal">L'offre</p>
+    <h2 class="section-title reveal">Simple. Transparent. Efficace.</h2>
+    <p class="section-sub reveal">Trois niveaux selon vos ambitions. Un audit gratuit pour commencer.</p>
+  </div>
+  <div class="offre-grid">
+    <div class="offre-card reveal">
+      <div class="offre-num">01</div>
+      <div class="offre-name">Starter</div>
+      <div class="offre-desc">Un premier agent opérationnel en une semaine. Zéro risque.</div>
+      <div class="offre-price">2 000 €</div>
+      <ul class="offre-features">
+        <li>Setup complet</li>
+        <li>1 agent au choix</li>
+        <li>Dashboard de pilotage</li>
+        <li>Formation équipe (1h30)</li>
+      </ul>
+    </div>
+    <div class="offre-card featured reveal">
+      <div class="offre-num">02</div>
+      <div class="offre-name">Avancé</div>
+      <div class="offre-desc">Trois agents pour couvrir les départements clés de votre activité.</div>
+      <div class="offre-price">4 500 €</div>
+      <ul class="offre-features">
+        <li>Setup complet</li>
+        <li>3 agents au choix</li>
+        <li>Dashboard de pilotage</li>
+        <li>Formation équipe (1h30)</li>
+        <li>Intégration outils existants</li>
+      </ul>
+    </div>
+    <div class="offre-card reveal">
+      <div class="offre-num">03</div>
+      <div class="offre-name">Sur mesure</div>
+      <div class="offre-desc">Cinq agents construits autour de vos process. Dashboard à vos couleurs.</div>
+      <div class="offre-price">6 000 €</div>
+      <ul class="offre-features">
+        <li>Setup complet</li>
+        <li>5 agents sur mesure</li>
+        <li>Dashboard personnalisé</li>
+        <li>Formation équipe (1h30)</li>
+        <li>Intégration avancée</li>
+        <li>Support prioritaire 24h</li>
+      </ul>
+    </div>
+  </div>
+  <div class="offre-supplements">
+    <div class="supplement-card reveal">
+      <div class="supplement-name">Nouvel agent</div>
+      <div class="supplement-price">1 500 €</div>
+      <div class="supplement-detail">par agent</div>
+    </div>
+    <div class="supplement-card reveal">
+      <div class="supplement-name">Formation équipe</div>
+      <div class="supplement-price">300 €</div>
+      <div class="supplement-detail">1h30</div>
+    </div>
+    <div class="supplement-card reveal">
+      <div class="supplement-name">Maintenance</div>
+      <div class="supplement-price">150 €</div>
+      <div class="supplement-detail">/ mois / agent</div>
+    </div>
+    <div class="supplement-card reveal">
+      <div class="supplement-name">Mise à jour IA</div>
+      <div class="supplement-price">200 €</div>
+      <div class="supplement-detail">/ mois</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="contact">
+  <p class="section-label">Passez à l'action</p>
+  <h2 class="section-title reveal" style="max-width:600px; margin:0 auto 16px;">30 minutes pour tout changer.</h2>
+  <p class="cta-sub reveal">Audit gratuit. Je regarde vos process, je vous dis ce qu'on automatise et combien de temps vous récupérez.</p>
+  <a href="https://calendly.com/optima-flow38/30min" target="_blank" class="btn-white reveal">Réserver mon audit gratuit →</a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">OPTIMA FLOW</div>
+  <div class="footer-copy">© 2026 Optima Flow. Tous droits réservés.</div>
+</footer>
+
+<script>
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
+
+  document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX; mouseY = e.clientY;
+    cursor.style.left = mouseX + 'px';
+    cursor.style.top = mouseY + 'px';
+  });
+
+  function animateRing() {
+    ringX += (mouseX - ringX) * 0.12;
+    ringY += (mouseY - ringY) * 0.12;
+    ring.style.left = ringX + 'px';
+    ring.style.top = ringY + 'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+
+  document.querySelectorAll('a, button').forEach(el => {
+    el.addEventListener('mouseenter', () => { cursor.classList.add('hovering'); ring.classList.add('hovering'); });
+    el.addEventListener('mouseleave', () => { cursor.classList.remove('hovering'); ring.classList.remove('hovering'); });
+  });
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => observer.observe(el));
+
+  // Animate time bars on scroll
+  const bars = document.querySelectorAll('.time-bar-fill');
+  const barObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const fills = entry.target.querySelectorAll('.time-bar-fill');
+        fills.forEach(fill => {
+          const target = fill.style.width;
+          fill.style.width = '0%';
+          fill.style.transition = 'width 1.2s cubic-bezier(0.4, 0, 0.2, 1)';
+          setTimeout(() => fill.style.width = target, 200);
+        });
+        barObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.3 });
+  document.querySelectorAll('.problem-visual').forEach(el => barObserver.observe(el));
+</script>
+</body>
+</html>
